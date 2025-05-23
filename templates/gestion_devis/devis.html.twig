@@ -2,78 +2,69 @@
 
 {% block title %}Accueil des Devis{% endblock %}
 
+{% block stylesheets %}
+<style>
+    .icon-sm {
+        width: 1em;
+        height: 1em;
+        vertical-align: middle;
+        margin-right: 5px;
+    }
+</style>
+{% endblock %}
+
 {% block body %}
-    <div class="container">
-        <h1 class="text-center">Devis</h1>
-
-        <!-- Boutons d'action -->
-        <div class="text-right mb-3">
-            <button onclick="window.location.href='{{ path('quote_create') }}'" class="btn btn-primary" style="margin-right: 10px;">Créer Devis</button>
-            <button onclick="window.location.href='{{ path('homepage') }}'" class="btn btn-primary">Retourner à l'accueil</button>
-        </div>
-
-        <!-- Liste des devis -->
-        <div class="row">
-            {% for quote in quotes %}
-            <div class="col-md-6 mb-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title"><span class="blue-text">{{ quote.title }}</span></h5>
-                        <p class="card-text"><strong>ID:</strong> {{ quote.id }}</p>
-
-                        <!-- Boutons d'action -->
-                        <div class="text-right">
-                            <button onclick="window.location.href='{{ path('quote_update', {'id': quote.id}) }}'" class="btn btn-primary" style="margin-right: 5px;">Modifier</button>
-                            <button class="btn btn-danger delete-quote-btn" data-quote-id="{{ quote.id }}" data-delete-url="{{ path('delete_quote', {'id': quote.id}) }}" style="margin-right: 5px;">Supprimer</button>
-                            <button onclick="window.location.href='{{ path('read_quote', {'id': quote.id}) }}'" class="btn btn-primary" style="margin-right: 5px;">Lire</button>
-                            <button class="btn btn-primary download-quote-btn" data-quote-id="{{ quote.id }}" style="margin-right: 5px;">Télécharger</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{{ ux_icon('bi:file-earmark-text', { class: 'icon-sm' }) }} Liste des Devis</h1>
+        <div>
+            <a href="{{ path('quote_create') }}" class="btn btn-success me-2">
+                {{ ux_icon('bi:plus-circle', { class: 'icon-sm' }) }} Créer un Devis
+            </a>
+            <a href="{{ path('web_homepage') }}" class="btn btn-secondary">
+                {{ ux_icon('bi:house-door', { class: 'icon-sm' }) }} Retour à l'Accueil
+            </a>
         </div>
     </div>
 
-    <script>
+    <div class="row">
+        {% if quotes is empty %}
+            <p>Aucun devis disponible.</p>
+        {% else %}
+            {% for quote in quotes %}
+                <div class="col-12 mb-3">
+                    <div class="card p-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Devis #{{ quote.id }}</strong> - {{ quote.title ?? 'Sans titre' }}
+                            </div>
+                            <div>
+                                {% if is_granted('QUOTE_MANAGE', quote) %}
+                                    <button onclick="window.location.href='{{ path('quote_update', {'id': quote.id}) }}'" class="btn btn-sm btn-primary me-1">
+                                        {{ ux_icon('bi:pencil-square', { class: 'icon-sm' }) }} Modifier
+                                    </button>
 
-        function deleteQuote(quoteId, deleteUrl) {
-            if (confirm("Voulez-vous vraiment supprimer ce devis ?")) {
-                fetch(deleteUrl, {
-                    method: 'DELETE',
-                })
-                .then(response => {
-                    if (response.ok) {
-                        location.reload();
-                    } else {
-                        console.error('Erreur lors de la suppression du devis.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Une erreur est survenue : ', error);
-                });
-            }
-        }
+                                    <form method="POST" action="{{ path('delete_quote', { id: quote.id }) }}" style="display:inline;" onsubmit="return confirm('Supprimer ce devis ?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete-quote-' ~ quote.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            {{ ux_icon('bi:trash', { class: 'icon-sm' }) }} Supprimer
+                                        </button>
+                                    </form>
+                                {% endif %}
 
+                                <button onclick="window.location.href='{{ path('read_quote', {'id': quote.id}) }}'" class="btn btn-sm btn-secondary ms-2">
+                                    {{ ux_icon('bi:eye', { class: 'icon-sm' }) }} Lire
+                                </button>
+                                <a href="{{ path('download_quote_pdf', {'id': quote.id}) }}" class="btn btn-sm btn-success ms-2" target="_blank">
+                                    {{ ux_icon('bi:download', { class: 'icon-sm' }) }} Télécharger
+                                </a>
 
-        document.querySelectorAll('.delete-quote-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const quoteId = this.getAttribute('data-quote-id');
-                const deleteUrl = this.getAttribute('data-delete-url');
-                deleteQuote(quoteId, deleteUrl);
-            });
-        });
-
-
-        function downloadQuote(quoteId) {
-            window.location.href = "{{ path('download_quote_pdf', {'id': 'quoteId'}) }}".replace('quoteId', quoteId);
-        }
-
-        document.querySelectorAll('.download-quote-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const quoteId = this.getAttribute('data-quote-id');
-                downloadQuote(quoteId);
-            });
-        });
-    </script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

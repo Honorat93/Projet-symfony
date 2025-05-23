@@ -6,63 +6,134 @@
     {{ parent() }}
     <style>
         h1 {
-            text-align: center;
+            margin-bottom: 0;
         }
 
-        form {
-            margin: 20px auto;
-            width: 300px;
-            padding: 20px;
+        .form-container {
+            margin: 30px auto;
+            max-width: 500px;
+            padding: 30px;
             border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #f9f9f9;
+            border-radius: 8px;
+            background-color: #fefefe;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        label {
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
             display: block;
+            font-weight: bold;
             margin-bottom: 5px;
         }
 
-        input[type="text"],
-        input[type="email"],
-        select {
+        .form-group input,
+        .form-group select {
             width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
+            padding: 8px 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            box-sizing: border-box;
+            font-size: 14px;
         }
 
+        .form-group input[type="checkbox"] {
+            width: auto;
+        }
+
+        .password-help {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .icon-sm {
+            width: 1em;
+            height: 1em;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
     </style>
 {% endblock %}
 
 {% block body %}
-    <h1>Modifier Utilisateur</h1>
-    <form action="{{ path('update_user', {'id': user.id}) }}" method="post">
-        <div>
-            <label for="firstname">Prénom:</label>
-            <input type="text" id="firstname" name="firstname" value="{{ user.firstname }}" required>
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>{{ ux_icon('bi:person-lines-fill', { class: 'icon-sm' }) }} Modifier Utilisateur</h1>
+            <a href="{{ path('web_homepage') }}" class="btn btn-outline-secondary">
+                {{ ux_icon('bi:arrow-left', { class: 'icon-sm' }) }} Retour
+            </a>
         </div>
-        <div>
-            <label for="lastname">Nom:</label>
-            <input type="text" id="lastname" name="lastname" value="{{ user.lastname }}" required>
+
+        <div class="form-container">
+            {{ form_start(form) }}
+                <div class="form-group">
+                    {{ form_label(form.firstname) }}
+                    {{ form_widget(form.firstname) }}
+                    {{ form_errors(form.firstname) }}
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(form.lastname) }}
+                    {{ form_widget(form.lastname) }}
+                    {{ form_errors(form.lastname) }}
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(form.email) }}
+                    {{ form_widget(form.email) }}
+                    {{ form_errors(form.email) }}
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(form.genre) }}
+                    {{ form_widget(form.genre) }}
+                    {{ form_errors(form.genre) }}
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(form.encrypte) }}
+                    {{ form_widget(form.encrypte, {
+                        'attr': {
+                            'placeholder': 'Laissez vide pour ne pas modifier'
+                        }
+                    }) }}
+                    {{ form_errors(form.encrypte) }}
+                    <div class="password-help">Laissez ce champ vide si vous ne souhaitez pas modifier le mot de passe</div>
+                </div>
+
+                {% if form.role is defined %}
+                    <div class="form-group">
+                        {{ form_label(form.role) }}
+                        {{ form_widget(form.role) }}
+                        {{ form_errors(form.role) }}
+                    </div>
+                {% endif %}
+
+                <div class="form-group">
+                    {{ form_label(form.rgpd) }}
+                    {{ form_widget(form.rgpd) }}
+                    {{ form_errors(form.rgpd) }}
+                </div>
+
+                <button type="submit">Mettre à jour</button>
+            {{ form_end(form) }}
         </div>
-        <div>
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" value="{{ user.email }}" required>
-        </div>
-        <div>
-            <label for="genre">Genre:</label>
-            <select id="genre" name="genre" required>
-                <option value="H" {% if user.genre == 'H' %} selected {% endif %}>H</option>
-                <option value="F" {% if user.genre == 'F' %} selected {% endif %}>F</option>
-            </select>
-        </div>
-        <div>
-            <input type="checkbox" id="rgpd" name="rgpd" {% if user.rgpd %} checked {% endif %}>
-            <label for="rgpd">I agree to the terms and conditions</label>
-        </div>
-        <button type="submit" class="btn btn-primary btn-lg">Modifier</button>
-    </form>
+    </div>
 {% endblock %}

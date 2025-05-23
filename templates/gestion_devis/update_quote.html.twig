@@ -5,81 +5,108 @@
 {% block stylesheets %}
     {{ parent() }}
     <style>
-        .container {
+        h1 {
+            margin-bottom: 0;
+        }
+
+        .form-container {
+            margin: 30px auto;
             max-width: 500px;
-            margin: 0 auto; 
-            padding: 20px;
-            background-color: #f8f9fa;
+            padding: 30px;
+            border: 1px solid #ccc;
             border-radius: 8px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            margin-top: 50px; 
+            background-color: #fefefe;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .form-group {
             margin-bottom: 20px;
         }
 
-        label {
+        .form-group label {
+            display: block;
             font-weight: bold;
-            color: #343a40; 
+            margin-bottom: 5px;
         }
 
-        input[type="text"],
-        input[type="number"],
-        textarea {
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        button {
             width: 100%;
             padding: 10px;
-            border: 1px solid #ced4da; 
-            border-radius: 4px;
-            background-color: #fff; 
-            color: #495057; 
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        }
-
-        input[type="text"]:focus,
-        input[type="number"]:focus,
-        textarea:focus {
-            border-color: #80bdff; 
-            outline: 0;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); 
-        }
-
-        button[type="submit"] {
-            padding: 10px 20px;
-            background-color: #007bff; 
-            color: #fff; 
+            background-color: #007bff;
             border: none;
+            color: white;
+            font-size: 16px;
             border-radius: 4px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
         }
 
-        button[type="submit"]:hover {
-            background-color: #0056b3; 
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .icon-sm {
+            width: 1em;
+            height: 1em;
+            vertical-align: middle;
+            margin-right: 5px;
         }
     </style>
 {% endblock %}
 
 {% block body %}
-    <div class="container"> 
-        <h1 class="text-center">Modifier Devis</h1>
-        <form method="post" action="{{ path('update_quote', {'id': quote.id}) }}">
-            {# Utilisez un champ hidden pour la méthode PUT #}
-            <input type="hidden" name="_method" value="PUT">
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>{{ ux_icon('bi:pencil-square', { class: 'icon-sm' }) }} Modifier Devis</h1>
+            <a href="{{ path('quote_home') }}" class="btn btn-outline-secondary">
+                {{ ux_icon('bi:arrow-left', { class: 'icon-sm' }) }} Retour
+            </a>
+        </div>
 
-            <div class="form-group">
-                <label for="title">Titre</label>
-                <input type="text" class="form-control" id="title" name="title" value="{{ quote.title }}">
-            </div>
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea class="form-control" id="description" name="description">{{ quote.description }}</textarea>
-            </div>
-            <div class="form-group">
-                <label for="amount">Montant</label>
-                <input type="number" class="form-control" id="amount" name="amount" value="{{ quote.amount }}">
-            </div>
-            <button type="submit" class="btn btn-primary btn-block">Modifier</button> 
-        </form>
+        <div class="form-container">
+            {{ form_start(form) }}
+                <div class="form-group">
+                    {{ form_label(form.title) }}
+                    {{ form_widget(form.title) }}
+                    {{ form_errors(form.title) }} 
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.description) }}
+                    {{ form_widget(form.description) }}
+                    {{ form_errors(form.description) }}
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.amount) }}
+                    {{ form_widget(form.amount) }}
+                    {{ form_errors(form.amount) }}
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.clientFirstname) }}
+                    {{ form_widget(form.clientFirstname) }}
+                    {{ form_errors(form.clientFirstname) }}
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.clientLastname) }}
+                    {{ form_widget(form.clientLastname) }}
+                    {{ form_errors(form.clientLastname) }}
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.clientEmail) }}
+                    {{ form_widget(form.clientEmail) }}
+                    {{ form_errors(form.clientEmail) }}
+                </div>
+                <button type="submit">
+                    {{ ux_icon('bi:check2-circle', { class: 'icon-sm' }) }} Mettre à jour
+                </button>
+            {{ form_end(form) }}
+        </div>
     </div>
 {% endblock %}

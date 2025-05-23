@@ -35,8 +35,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'boolean', options: ['default' => '1'])]
     private ?bool $rgpd;
 
-    #[ORM\OneToMany(targetEntity: Quote::class, mappedBy: 'user', cascade: ['remove'])]
-    private Collection $quotes;
+    #[ORM\Column(type: 'json', nullable: false)]
+    private array $roles = [];
 
     public function getId(): ?int
     {
@@ -103,16 +103,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->encrypte;
     }
 
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        if (!in_array('ROLE_USER', $roles, true)) {
+            $roles[] = 'ROLE_USER';
+        }
+
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+        return $this;
+    }
+
+
     public function setPassword(string $encrypte): static
     {
         $this->encrypte = $encrypte;
         return $this;
     }
 
-    public function getRoles(): array
-    {
-        return ['ROLE_USER'];
-    }
 
     public function getSalt()
     {
@@ -137,4 +150,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return $this->quotes;
     }
+
+    public function getFullName(): string
+    {
+        return $this->getFirstName() . ' ' . $this->getLastName();
+    }
+    
 }

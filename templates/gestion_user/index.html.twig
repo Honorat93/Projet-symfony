@@ -1,284 +1,241 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Accueil{% endblock %}
+{% block title %}Gestion des Utilisateurs{% endblock %}
 
 {% block stylesheets %}
-    <style>
-.container {
-    background-color: #f2f2f2;
-    padding: 20px;
-    max-width: 200px;
-    margin: 0; /* Modifier cette ligne */
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
+<style>
+    .main-wrapper {
+        display: flex;
+        min-height: 100vh;
+        background-color: #f8f9fa;
+    }
 
-.logo {
-    width: 100px;
-    height: 100px;
-    margin-bottom: 20px;
-}
+    .sidebar {
+        width: 200px;
+        background: #ffffff;
+        padding: 20px;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        position: fixed;
+        height: 100%;
+    }
 
-.button-group button {
-    margin-bottom: 10px;
-    width: 100%;
-    box-sizing: border-box;
-}
+    .sidebar-logo {
+        width: 120px;
+        margin: 0 auto 30px;
+        display: block;
+    }
 
-.logout {
-    margin-top: auto;
-}
+    .nav-button {
+        width: 100%;
+        margin-bottom: 10px;
+        text-align: left;
+        padding: 12px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
 
-.user-table-container {
-    margin-top: 10px; /
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-    </style>
+    .nav-button:hover {
+        transform: translateX(5px);
+        background-color: #e9ecef;
+    }
+
+    .main-content {
+        margin-left: 200px;
+        flex: 1;
+        padding: 30px;
+        background-color: #ffffff;
+        min-height: 100vh;
+    }
+
+    .action-header {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+
+    .user-table {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .user-table th {
+        background-color: #f8f9fa;
+        padding: 15px;
+        font-weight: 600;
+    }
+
+    .user-table td {
+        padding: 12px 15px;
+        vertical-align: middle;
+    }
+
+    .modal-input-group {
+        margin-bottom: 20px;
+    }
+
+    .modal-input-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            width: 100%;
+            position: relative;
+            height: auto;
+        }
+
+        .main-content {
+            margin-left: 0;
+        }
+
+        .action-header {
+            flex-direction: column;
+        }
+    }
+
+    .icon-sm {
+        width: 1em;
+        height: 1em;
+        vertical-align: middle;
+        margin-right: 5px;
+    }
+</style>
 {% endblock %}
 
 {% block body %}
-    <div class="container">
-        <img src="{{ asset('images/logo.png') }}" alt="" class="logo">
-        <div class="button-group">
-            <button onclick="window.location.href='{{ path('get_all_users') }}'" class="btn btn-primary">Liste des Utilisateurs</button>
-            <button onclick="window.location.href='{{ path('quote_home') }}'" class="btn btn-primary">Devis</button>
+    {{ include('gestion_user/create_user.html.twig', {form: createForm}) }}
+    {% set showCreateModal = createForm.vars.submitted and not createForm.vars.valid %}
+
+
+    <div id="modal-flags" data-show-create="{{ showCreateModal ? '1' : '0' }}"></div>
+    <div class="main-wrapper">
+        <div class="sidebar">
+            <img src="{{ asset('images/logo.png') }}" alt="Logo" class="sidebar-logo">
+            <div class="d-flex flex-column">
+                <button class="btn btn-outline-secondary nav-button" onclick="window.location.href='{{ path('web_get_all_users') }}'">
+                    {{ ux_icon('bi:people', { class: 'icon-sm' }) }} Liste des Utilisateurs
+                </button>
+                <button class="btn btn-outline-secondary nav-button" onclick="window.location.href='{{ path('quote_home') }}'">
+                    {{ ux_icon('bi:file-earmark-text', { class: 'icon-sm' }) }} Gestion des Devis
+                </button>
+                <button class="btn btn-danger nav-button mt-4" onclick="window.location.href='{{ path('app_logout') }}'">
+                    {{ ux_icon('bi:box-arrow-right', { class: 'icon-sm' }) }} Déconnexion
+                </button>
+            </div>
         </div>
-        <button onclick="window.location.href='{{ path('app_logout') }}'" class="btn btn-primary logout">Déconnexion</button>
-    </div>
 
-<div style="position: fixed; top: 0; right: 0; width: calc(100% - 210px); margin-top: 10px; display: flex; flex-direction: column; align-items: flex-end;">
-    <!-- Boutons pour manipuler les utilisateurs -->
-    <div style="width: 100%; display: flex; justify-content: flex-end;">
-        <button onclick="window.location.href='{{ path('user_create') }}'" type="button" class="btn btn-primary btn-lg" style="margin-right: 10px; width: 24%;">Créer user</button>
-        <button type="button" class="btn btn-primary btn-lg" id="updateUserButtonModal" data-bs-toggle="modal" data-bs-target="#updateUserModal" style="margin-right: 10px; width: 24%;">Mettre à jour user</button>
-        <button type="button" class="btn btn-primary btn-lg btn-danger" id="deleteUserButton" data-bs-toggle="modal" data-bs-target="#deleteUserModal" style="margin-right: 10px; width: 24%;">Supprimer user</button>
-        <button type="button" class="btn btn-primary btn-lg" id="searchUserButton" data-bs-toggle="modal" data-bs-target="#readUserModal" style="width: 24%;">Lire user</button>
-    </div>
+        <div class="main-content">
+            <div class="action-header">
+                {% if is_granted('USER_MANAGE') %}
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createModal">
+                        {{ ux_icon('bi:plus-circle', { class: 'icon-sm' }) }} Créer
+                    </button>
+                {% else %}
+                    <div class="alert alert-warning">
+                        {{ ux_icon('bi:exclamation-triangle', { class: 'icon-sm' }) }} Vous n'êtes pas autorisé à créer un utilisateur.
+                    </div>
+                {% endif %}
+            </div>
 
-    <!-- Tableau des utilisateurs -->
-    <div class="user-table-container" style="width: 100%; margin-top: 40px;"> 
-        <h1 style="text-align: center; margin-top: 40px;">Tableau des Utilisateurs</h1>
-        <table class="table user-table" style="width: 100%;">
-            <thead>
-                <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Nom</th>
-                    <th scope="col">Prénom</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Genre</th>
-                    <th scope="col">RGPD</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in users %}
+            <h2 class="mb-4">{{ ux_icon('bi:bar-chart', { class: 'icon-sm' }) }} Liste des Utilisateurs</h2>
+
+            <table class="table user-table">
+                <thead>
                     <tr>
-                        <td>{{ user.id }}</td>
-                        <td>{{ user.lastname }}</td>
-                        <td>{{ user.firstname }}</td>
-                        <td>{{ user.email }}</td>
-                        <td>{{ user.genre }}</td>
-                        <td>{{ user.rgpd ? 'Oui' : 'Non' }}</td>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Email</th>
+                        <th>Genre</th>
+                        <th>RGPD</th>
+                        <th>Actions</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.lastname }}</td>
+                            <td>{{ user.firstname }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.genre }}</td>
+                            <td>
+                                {{ user.rgpd
+                                    ? ux_icon('bi:check-circle', { class: 'icon-sm text-success' })
+                                    : ux_icon('bi:x-circle', { class: 'icon-sm text-danger' })
+                                }}
+                            </td>
+                            <td>
+                                <a href="{{ path('web_get_user', { id: user.id }) }}" class="btn btn-sm btn-info">
+                                    {{ ux_icon('bi:eye', { class: 'icon-sm' }) }} Voir
+                                </a>
 
-    <!-- Modale pour lire un utilisateur -->
-    <div class="modal fade" id="readUserModal" tabindex="-1" role="dialog" aria-labelledby="readUserModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="readUserModalLabel">Lire un utilisateur</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Entrez l'ID de l'utilisateur :</p>
-                    <input type="text" id="userIdInput" class="form-control" placeholder="Entrez l'ID de l'utilisateur">
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" id="readUserButton">Lire</button>
-                </div>
-            </div>
+                                <a href="{{ path('web_update_user', { id: user.id }) }}" class="btn btn-sm btn-warning">
+                                    {{ ux_icon('bi:pencil-square', { class: 'icon-sm' }) }} Modifier
+                                </a>
+
+                                <form method="POST" action="{{ path('web_suppress_user', { id: user.id }) }}" style="display:inline;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete-user-' ~ user.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer cet utilisateur ?');">
+                                        {{ ux_icon('bi:trash', { class: 'icon-sm' }) }} Supprimer
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
-
-   <!-- Modale pour supprimer un utilisateur -->
-    <div class="modal fade" id="deleteUserModal" tabindex="-1" role="dialog" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteUserModalLabel">Supprimer un utilisateur</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Entrez l'ID de l'utilisateur à supprimer :</p>
-                    <input type="text" id="deleteUserIdInput" class="form-control" placeholder="Entrez l'ID de l'utilisateur">
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" id="deleteUserButtonConfirm">Supprimer</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modale pour mettre à jour un utilisateur -->
-    <div class="modal fade" id="updateUserModal" tabindex="-1" role="dialog" aria-labelledby="updateUserModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="updateUserModalLabel">Mettre à jour un utilisateur</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Entrez l'ID de l'utilisateur à modifier :</p>
-                    <input type="text" id="updateUserIdInput" class="form-control" placeholder="Entrez l'ID de l'utilisateur">
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" id="updateUserButton">Mettre à jour</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modale pour confirmation de suppression -->
-    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmation de suppression</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Êtes-vous sûr de vouloir supprimer cet utilisateur ?</p>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <button class="btn btn-danger" id="confirmDeleteButton">Supprimer</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
-{% block javascripts %}
-<script>
-
-   $(document).ready(function() {
-    $('#readUserButton').click(function() {
-        var userId = $('#userIdInput').val().trim();
-
-        if (userId === '') {
-            alert("Veuillez entrer l'ID de l'utilisateur.");
-            return;
-        }
-
-        if (!userId || isNaN(userId) || userId <= 0) {
-            alert("Veuillez entrer un ID d'utilisateur valide.");
-            return;
-        }
-
-        $.ajax({
-            url: '{{ path('check_user_exists', {'id': 'userId'}) }}'.replace('userId', userId),
-            type: 'GET',
-            success: function(response) {
-                if (response.exists) {
-                    window.location.href = '/user/' + userId;
-                } else {
-                    alert("L'utilisateur avec l'ID spécifié n'existe pas.");
-                }
-            },
-            error: function(xhr, status, error) {
-                alert("Une erreur s'est produite lors de la vérification de l'existence de l'utilisateur.");
-            }
-        });
-    });
-
-    function reloadHomePage() {
-        window.location.reload();
-    }
-
-    window.addEventListener('pageshow', function(event) {
-        var historyTraversal = event.persisted || 
-                               (typeof window.performance != 'undefined' && 
-                                window.performance.navigation.type === 2);
-        if (historyTraversal) {
-            reloadHomePage();
-        }
-    });
-
-
-    $('#updateUserButton').click(function() {
-        var userId = $('#updateUserIdInput').val().trim();
-
-        if (userId === '') {
-            alert("Veuillez entrer l'ID de l'utilisateur à modifier.");
-            return;
-        }
-
-        if (!userId || isNaN(userId) || userId <= 0) {
-            alert("Veuillez entrer un ID d'utilisateur valide.");
-            return;
-        }
-
-
-        $.ajax({
-            url: '{{ path('check_user_exists', {'id': 'userId'}) }}'.replace('userId', userId),
-            type: 'GET',
-            success: function(response) {
-                if (response.exists) {
-                    window.location.href = '/update/' + userId;
-                } else {
-                    alert("L'utilisateur avec l'ID spécifié n'existe pas.");
-                }
-            },
-            error: function(xhr, status, error) {
-                alert("Une erreur s'est produite lors de la vérification de l'existence de l'utilisateur.");
-            }
-        });
-    });
-
-
-    $('#deleteUserButtonConfirm').click(function() {
-        var userId = $('#deleteUserIdInput').val().trim();
-        if (userId === '') {
-            alert("Veuillez entrer l'ID de l'utilisateur à supprimer.");
-            return;
-        }
-        if (!userId || isNaN(userId) || userId <= 0) {
-            alert("Veuillez entrer un ID d'utilisateur valide.");
-            return;
-        }
-        $('#confirmDeleteModal').modal('show');
-    });
-
-    $('#confirmDeleteButton').click(function() {
-        var userId = $('#deleteUserIdInput').val().trim();
-        $.ajax({
-            url: '{{ path('delete_user', {'id': 'userId'}) }}'.replace('userId', userId),
-            type: 'POST',
-            data: {
-                _method: 'DELETE'
-            },
-            success: function(response) {
-                alert('L\'utilisateur a été supprimé avec succès.');
-                window.location.reload();
-            },
-            error: function(xhr, status, error) {
-                alert('Une erreur s\'est produite lors de la suppression de l\'utilisateur.');
-            }
-        });
-    });
-});
-
-</script>
 {% endblock %}
 
+{% block javascripts %}
+{{ parent() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const modalFlags = document.getElementById('modal-flags');
+    if (modalFlags && modalFlags.dataset.showCreate === '1') {
+        const createModal = new bootstrap.Modal(document.getElementById('createModal'));
+        createModal.show();
+    }
+
+    const cancelBtn = document.getElementById('cancelCreateUserBtn');
+    const form = document.getElementById('createForm');
+    const modalEl = document.getElementById('createModal');
+    let wasCancelled = false;
+
+    if (cancelBtn && modalEl && form) {
+        cancelBtn.addEventListener('click', function () {
+            wasCancelled = true;
+        });
+
+        modalEl.addEventListener('hidden.bs.modal', function () {
+            if (wasCancelled) {
+                form.querySelectorAll('input').forEach(input => {
+                    if (['text', 'email', 'password'].includes(input.type)) {
+                        input.value = '';
+                    } else if (input.type === 'checkbox') {
+                        input.checked = false;
+                    }
+                    input.classList.remove('is-invalid');
+                });
+
+                form.querySelectorAll('select').forEach(select => {
+                    select.selectedIndex = 0;
+                    select.classList.remove('is-invalid');
+                });
+
+                form.querySelectorAll('.invalid-feedback').forEach(error => error.remove());
+
+                wasCancelled = false;
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

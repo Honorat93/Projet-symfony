@@ -6,6 +6,7 @@ use App\Repository\QuoteRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: QuoteRepository::class)]
+#[ORM\UniqueConstraint(name: "unique_title", columns: ["title"])]
 class Quote
 {
     #[ORM\Id]
@@ -21,13 +22,21 @@ class Quote
 
     #[ORM\Column(type: 'float')]
     private ?float $amount = null;
-
+    
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdAt = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'quotes')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $user = null;
+    #[ORM\Column(length: 80)]
+    private ?string $creatorEmail = null;
+
+    #[ORM\Column(length: 60)]
+    private ?string $clientFirstname = null;
+
+    #[ORM\Column(length: 60)]
+    private ?string $clientLastname = null;
+
+    #[ORM\Column(length: 80)]
+    private ?string $clientEmail = null;
     
     public function getId(): ?int
     {
@@ -78,14 +87,47 @@ class Quote
         return $this;
     }
 
-    public function getUser(): ?User
+    public function getCreatorEmail(): ?string
     {
-        return $this->user;
+        return $this->creatorEmail;
     }
 
-    public function setUser(?User $user): self
+    public function setCreatorEmail(string $creatorEmail): self
     {
-        $this->user = $user;
+        $this->creatorEmail = $creatorEmail;
+        return $this;
+    }
+
+    public function getClientFirstname(): ?string
+    {
+        return $this->clientFirstname;
+    }
+
+    public function setClientFirstname(string $clientFirstname): self
+    {
+        $this->clientFirstname = $clientFirstname;
+        return $this;
+    }
+
+    public function getClientLastname(): ?string
+    {
+        return $this->clientLastname;
+    }
+
+    public function setClientLastname(string $clientLastname): self
+    {
+        $this->clientLastname = $clientLastname;
+        return $this;
+    }
+
+    public function getClientEmail(): ?string
+    {
+        return $this->clientEmail;
+    }
+
+    public function setClientEmail(string $clientEmail): self
+    {
+        $this->clientEmail = $clientEmail;
         return $this;
     }
 }

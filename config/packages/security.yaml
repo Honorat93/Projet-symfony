@@ -14,24 +14,27 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
        
-        login:
-            pattern: ^/login
-            stateless: true
-            json_login:
-                check_path: /login_check
-                success_handler: lexik_jwt_authentication.handler.authentication_success
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
-            form_login:
-                login_path: app_login
-                check_path: app_login
-                enable_csrf: true
+
+           
         api:
-            pattern: ^/
+            pattern: ^api/
             stateless: true
             jwt: ~
         
         main:
             lazy: true
+            provider: app_user_provider
+
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                default_target_path: web_homepage
+                enable_csrf: true
+            logout:
+                path: app_logout
+                target: app_login
+                # where to redirect after logout
+                # target: app_any_route
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -41,11 +44,22 @@ security:
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
+    role_hierarchy:
+        ROLE_ADMIN: ROLE_USER
+    
+
     access_control:
-        - { path: ^/login, roles: PUBLIC_ACCESS }
-        - { path: ^/register, roles: PUBLIC_ACCESS }
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        #- { path: ^/user/create, roles: ROLE_ADMIN }
+        #- { path: ^/user/update, roles: ROLE_ADMIN }
+        #- { path: ^/user/delete, roles: ROLE_ADMIN }
+        #- { path: ^/quotes/create, roles: ROLE_USER }
+        #- { path: ^/quotes/update, roles: ROLE_USER }
+        #- { path: ^/quotes/delete, roles: ROLE_USER }
+
+        - { path: ^/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/user, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/quotes, roles: IS_AUTHENTICATED_FULLY }
+    
 
 when@test:
     security:

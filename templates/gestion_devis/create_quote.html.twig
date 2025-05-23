@@ -6,56 +6,107 @@
     {{ parent() }}
     <style>
         h1 {
-            text-align: center;
+            margin-bottom: 0;
         }
 
-        form {
-            margin: 20px auto;
-            width: 300px;
-            padding: 20px;
+        .form-container {
+            margin: 30px auto;
+            max-width: 500px;
+            padding: 30px;
             border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #f9f9f9;
+            border-radius: 8px;
+            background-color: #fefefe;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        label {
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
             display: block;
+            font-weight: bold;
             margin-bottom: 5px;
         }
 
-        input[type="text"],
-        textarea,
-        input[type="email"] {
+        .form-group input,
+        .form-group textarea {
             width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
+            padding: 8px 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            box-sizing: border-box;
+            font-size: 14px;
         }
 
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .icon-sm {
+            width: 1em;
+            height: 1em;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
     </style>
 {% endblock %}
 
 {% block body %}
-    <h1>Créer Devis</h1>
-    <form action="{{ path('create_quote') }}" method="POST">
-        <div>
-            <label for="title">Titre:</label>
-            <input type="text" id="title" name="title" required>
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>{{ ux_icon('bi:file-earmark-plus', { class: 'icon-sm' }) }} Créer Devis</h1>
+            <a href="{{ path('quote_home') }}" class="btn btn-outline-secondary">
+                {{ ux_icon('bi:arrow-left', { class: 'icon-sm' }) }} Retour
+            </a>
         </div>
-        <div>
-            <label for="description">Description:</label>
-            <textarea id="description" name="description" rows="4" required></textarea>
+
+        <div class="form-container">
+            {{ form_start(form) }}
+                <div class="form-group">
+                    {{ form_label(form.title) }}
+                    {{ form_widget(form.title) }}
+                    {{ form_errors(form.title) }}
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.description) }}
+                    {{ form_widget(form.description) }}
+                    {{ form_errors(form.description) }}
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.amount) }}
+                    {{ form_widget(form.amount) }}
+                    {{ form_errors(form.amount) }}
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.clientFirstname) }}
+                    {{ form_widget(form.clientFirstname) }}
+                    {{ form_errors(form.clientFirstname) }}
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.clientLastname) }}
+                    {{ form_widget(form.clientLastname) }}
+                    {{ form_errors(form.clientLastname) }}
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.clientEmail) }}
+                    {{ form_widget(form.clientEmail) }}
+                    {{ form_errors(form.clientEmail) }}
+                </div>
+                <button type="submit">
+                     Créer Devis
+                </button>
+            {{ form_end(form) }}
         </div>
-        <div>
-            <label for="amount">Montant:</label>
-            <input type="text" id="amount" name="amount" required>
-        </div>
-        <div>
-            <label for="user_email">Email de l'utilisateur:</label>
-            <input type="email" id="user_email" name="user_email" required>
-        </div>
-        <button type="submit" class="btn btn-primary btn-lg">Créer Devis</button>
-    </form>
+    </div>
 {% endblock %}
