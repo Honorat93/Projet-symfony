@@ -82,7 +82,6 @@ class QuoteWebControllerTest extends WebTestCase
         $this->client->submit($form);
         $this->assertResponseRedirects('/quotes');
         
-        // Verify update in database
         $updatedQuote = $this->quoteRepository->find($quote->getId());
         $this->assertEquals('Titre modifié', $updatedQuote->getTitle());
         $this->assertEquals(2000, $updatedQuote->getAmount());
@@ -96,13 +95,12 @@ class QuoteWebControllerTest extends WebTestCase
         $quote = $this->quoteRepository->findOneBy([]);
         $quoteId = $quote->getId();
 
-        // Test with valid CSRF token
         $token = $this->csrfTokenManager->getToken('delete-quote-'.$quoteId)->getValue();
         $this->client->request('POST', '/quotes/delete/'.$quoteId, ['_token' => $token]);
         $this->assertResponseRedirects('/quotes');
         $this->assertNull($this->quoteRepository->find($quoteId));
 
-        // Test with invalid CSRF token
+    
         $newQuote = $this->quoteRepository->findOneBy([]);
         $this->client->request('POST', '/quotes/delete/'.$newQuote->getId(), ['_token' => 'invalid_token']);
         $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);

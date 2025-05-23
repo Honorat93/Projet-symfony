@@ -26,7 +26,6 @@ class UserWebControllerTest extends WebTestCase
         $this->client->request('POST', '/user/create');
         $this->assertResponseRedirects('/user/home');
 
-        // Suivre la redirection pour vérifier le message flash
         $this->client->followRedirect();
         $this->assertSelectorExists('.alert-danger');
         $this->assertSelectorTextContains('.alert-danger', 'autorisé');
@@ -49,7 +48,6 @@ class UserWebControllerTest extends WebTestCase
 
         $this->client->submit($form);
 
-        // On suit la redirection pour valider le message
         $this->assertResponseRedirects('/user/home');
         $this->client->followRedirect();
         $this->assertSelectorExists('.alert-success');

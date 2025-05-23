@@ -2,7 +2,6 @@
 
 namespace App\Controller\Web;
 
-use App\Dto\QuoteDto;
 use App\Form\QuoteType;
 use App\Service\QuoteService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,7 +26,7 @@ class QuoteWebController extends AbstractController
     #[Route('/create', name: 'quote_create', methods: ['GET', 'POST'])]
     public function create(Request $request, QuoteService $quoteService): Response
     {
-        $dto = new QuoteDto();
+        $dto = $quoteService->createQuoteDto();
         $form = $this->createForm(QuoteType::class, $dto);
         $form->handleRequest($request);
 
@@ -52,15 +51,7 @@ class QuoteWebController extends AbstractController
         $quote = $quoteService->getQuote($id);
         $this->denyAccessUnlessGranted(QuoteVoter::MANAGE, $quote);
 
-        $dto = new QuoteDto();
-        $dto->id = $quote->getId();
-        $dto->title = $quote->getTitle();
-        $dto->description = $quote->getDescription();
-        $dto->amount = $quote->getAmount();
-        $dto->clientFirstname = $quote->getClientFirstname();
-        $dto->clientLastname = $quote->getClientLastname();
-        $dto->clientEmail = $quote->getClientEmail();
-
+        $dto = $quoteService->createDtoFromEntity($quote);
         $form = $this->createForm(QuoteType::class, $dto);
         $form->handleRequest($request);
 
@@ -84,14 +75,7 @@ class QuoteWebController extends AbstractController
     public function read(int $id, QuoteService $quoteService): Response
     {
         $quote = $quoteService->getQuote($id);
-
-        $dto = new QuoteDto();
-        $dto->title = $quote->getTitle();
-        $dto->description = $quote->getDescription();
-        $dto->amount = $quote->getAmount();
-        $dto->clientFirstname = $quote->getClientFirstname();
-        $dto->clientLastname = $quote->getClientLastname();
-        $dto->clientEmail = $quote->getClientEmail();
+        $dto = $quoteService->createDtoFromEntity($quote);
 
         $form = $this->createForm(QuoteType::class, $dto, [
             'disabled' => true,
